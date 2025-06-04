@@ -1,4 +1,3 @@
-
 window.addEventListener('message', function(event) {
     const data = event.data;
     
@@ -65,3 +64,4 @@ document.addEventListener('keydown', function(event) {
     if (event.key === 'Escape') {
         closeLeaderboard();
     }
+});
