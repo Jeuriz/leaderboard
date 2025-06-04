@@ -1,0 +1,35 @@
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zombie Kills Leaderboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body style="display: none;">
+    <div class="leaderboard-container">
+        <div class="header">
+            <h1 class="title glow-effect">ZOMBIE SLAYERS</h1>
+            <p class="subtitle">Leaderboard - Eliminaciones de Zombies</p>
+            <button class="close-btn" onclick="closeLeaderboard()">✕</button>
+        </div>
+        
+        <table class="leaderboard-table">
+            <thead class="table-header">
+                <tr>
+                    <th>RANK</th>
+                    <th>ICONO</th>
+                    <th>JUGADOR</th>
+                    <th>ZOMBIE KILLS</th>
+                </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+                <!-- Los datos se cargarán dinámicamente -->
+            </tbody>
+        </table>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
