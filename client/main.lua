@@ -44,6 +44,17 @@ RegisterNetEvent('zombie-leaderboard:client:refreshLeaderboard', function()
     end
 end)
 
+-- EXPORTACIONES DEL CLIENTE
+-- Exportación para agregar kills desde el cliente
+exports('AddZombieKill', function(amount)
+    TriggerServerEvent('zombie-leaderboard:server:addKill', amount or 1)
+end)
+
+-- Exportación para establecer icono desde el cliente
+exports('SetPlayerIcon', function(icon)
+    TriggerServerEvent('zombie-leaderboard:server:setIcon', icon)
+end)
+
 -- Callback del NUI para cerrar
 RegisterNUICallback('closeLeaderboard', function(data, cb)
     CloseLeaderboard()
@@ -63,5 +74,5 @@ RegisterCommand('-zombieleaderboard', function() end)
 
 -- Ejemplo de uso de la exportación
 RegisterCommand('testzombiekill', function()
-    exports['zombie-leaderboard']:AddZombieKill(GetPlayerServerId(PlayerId()), 1)
+    exports['leaderboard']:AddZombieKill(GetPlayerServerId(PlayerId()), 1)
 end)
