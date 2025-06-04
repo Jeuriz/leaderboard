@@ -22,17 +22,21 @@ local function GetSortedLeaderboard()
     local leaderboard = {}
     
     for citizenid, playerData in pairs(data) do
+        local totalKills = (playerData.infectados or 0) + (playerData.mutantes or 0) + (playerData.boss or 0)
         table.insert(leaderboard, {
             citizenid = citizenid,
             name = playerData.name,
-            kills = playerData.kills,
+            infectados = playerData.infectados or 0,
+            mutantes = playerData.mutantes or 0,
+            boss = playerData.boss or 0,
+            total = totalKills,
             icon = playerData.icon or Config.DefaultIcon
         })
     end
     
-    -- Ordenar por kills de mayor a menor
+    -- Ordenar por total de kills de mayor a menor
     table.sort(leaderboard, function(a, b)
-        return a.kills > b.kills
+        return a.total > b.total
     end)
     
     -- Limitar a los primeros Config.MaxDisplayPlayers
@@ -70,10 +74,22 @@ QBCore.Commands.Add(Config.Commands.resetStats, 'Resetear todas las estadística
 end, Config.Permissions.reset)
 
 -- EVENTOS DEL SERVIDOR (para llamadas desde el cliente)
--- Event para agregar kills desde el cliente
-RegisterNetEvent('zombie-leaderboard:server:addKill', function(amount)
+-- Event para agregar infectados desde el cliente
+RegisterNetEvent('zombie-leaderboard:server:addInfectado', function(amount)
     local source = source
-    exports['leaderboard']:AddZombieKill(source, amount or 1)
+    exports['leaderboard']:AddInfectado(source, amount or 1)
+end)
+
+-- Event para agregar mutantes desde el cliente
+RegisterNetEvent('zombie-leaderboard:server:addMutante', function(amount)
+    local source = source
+    exports['leaderboard']:AddMutante(source, amount or 1)
+end)
+
+-- Event para agregar boss desde el cliente
+RegisterNetEvent('zombie-leaderboard:server:addBoss', function(amount)
+    local source = source
+    exports['leaderboard']:AddBoss(source, amount or 1)
 end)
 
 -- Event para establecer icono desde el cliente
@@ -82,8 +98,8 @@ RegisterNetEvent('zombie-leaderboard:server:setIcon', function(icon)
     exports['leaderboard']:SetPlayerIcon(source, icon)
 end)
 
--- Exportación para agregar kills
-exports('AddZombieKill', function(source, amount)
+-- Función auxiliar para agregar kills por tipo
+local function AddKillByType(source, killType, amount)
     local Player = QBCore.Functions.GetPlayer(source)
     if not Player then return false end
     
@@ -95,23 +111,51 @@ exports('AddZombieKill', function(source, amount)
     if not data[citizenid] then
         data[citizenid] = {
             name = playerName,
-            kills = 0,
+            infectados = 0,
+            mutantes = 0,
+            boss = 0,
             icon = Config.DefaultIcon
         }
     end
     
-    data[citizenid].kills = data[citizenid].kills + (amount or 1)
+    data[citizenid][killType] = data[citizenid][killType] + (amount or 1)
     data[citizenid].name = playerName -- Actualizar nombre en caso de cambio
     
     SaveData(data)
     
     -- Notificar al jugador
-    TriggerClientEvent('QBCore:Notify', source, 'Zombie eliminado! Total: ' .. data[citizenid].kills, 'success')
+    local killTypeNames = {
+        infectados = "Infectado",
+        mutantes = "Mutante",
+        boss = "Boss"
+    }
+    local total = (data[citizenid].infectados or 0) + (data[citizenid].mutantes or 0) + (data[citizenid].boss or 0)
+    TriggerClientEvent('QBCore:Notify', source, killTypeNames[killType] .. ' eliminado! ' .. killTypeNames[killType] .. 's: ' .. data[citizenid][killType] .. ' | Total: ' .. total, 'success')
     
     -- Refrescar leaderboard para todos los jugadores que lo tengan abierto
     TriggerClientEvent('zombie-leaderboard:client:refreshLeaderboard', -1)
     
     return true
+end
+
+-- Exportación para agregar infectados
+exports('AddInfectado', function(source, amount)
+    return AddKillByType(source, 'infectados', amount)
+end)
+
+-- Exportación para agregar mutantes
+exports('AddMutante', function(source, amount)
+    return AddKillByType(source, 'mutantes', amount)
+end)
+
+-- Exportación para agregar boss
+exports('AddBoss', function(source, amount)
+    return AddKillByType(source, 'boss', amount)
+end)
+
+-- Exportación legacy para compatibilidad (suma a infectados)
+exports('AddZombieKill', function(source, amount)
+    return AddKillByType(source, 'infectados', amount)
 end)
 
 -- Exportación para establecer el icono de un jugador
@@ -142,7 +186,9 @@ exports('GetPlayerStats', function(source)
     
     return data[citizenid] or {
         name = Player.PlayerData.charinfo.firstname .. ' ' .. Player.PlayerData.charinfo.lastname,
-        kills = 0,
+        infectados = 0,
+        mutantes = 0,
+        boss = 0,
         icon = Config.DefaultIcon
     }
 end)
