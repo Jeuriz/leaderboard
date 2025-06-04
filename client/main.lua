@@ -134,9 +134,24 @@ RegisterNetEvent('zombie-leaderboard:client:refreshLeaderboard', function()
 end)
 
 -- EXPORTACIONES DEL CLIENTE
--- Exportación para agregar kills desde el cliente
+-- Exportación para agregar infectados desde el cliente
+exports('AddInfectado', function(amount)
+    TriggerServerEvent('zombie-leaderboard:server:addInfectado', amount or 1)
+end)
+
+-- Exportación para agregar mutantes desde el cliente
+exports('AddMutante', function(amount)
+    TriggerServerEvent('zombie-leaderboard:server:addMutante', amount or 1)
+end)
+
+-- Exportación para agregar boss desde el cliente
+exports('AddBoss', function(amount)
+    TriggerServerEvent('zombie-leaderboard:server:addBoss', amount or 1)
+end)
+
+-- Exportación legacy para compatibilidad (suma a infectados)
 exports('AddZombieKill', function(amount)
-    TriggerServerEvent('zombie-leaderboard:server:addKill', amount or 1)
+    TriggerServerEvent('zombie-leaderboard:server:addInfectado', amount or 1)
 end)
 
 -- Exportación para establecer icono desde el cliente
@@ -161,10 +176,23 @@ end)
 
 RegisterCommand('-zombieleaderboard', function() end)
 
--- Ejemplo de uso de la exportación
-RegisterCommand('testzombiekill', function()
-    exports['leaderboard']:AddZombieKill(GetPlayerServerId(PlayerId()), 1)
-end)
+-- -- Comandos de prueba para las nuevas categorías
+-- RegisterCommand('testinfectado', function()
+--     exports['leaderboard']:AddInfectado(1)
+-- end)
+
+-- RegisterCommand('testmutante', function()
+--     exports['leaderboard']:AddMutante(1)
+-- end)
+
+-- RegisterCommand('testboss', function()
+--     exports['leaderboard']:AddBoss(1)
+-- end)
+
+-- -- Comando de prueba legacy
+-- RegisterCommand('testzombiekill', function()
+--     exports['leaderboard']:AddInfectado(1)
+-- end)
 
 -- Inicializar ox_target cuando el recurso se cargue
 CreateThread(function()
