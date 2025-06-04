@@ -69,6 +69,19 @@ QBCore.Commands.Add(Config.Commands.resetStats, 'Resetear todas las estadística
     end
 end, Config.Permissions.reset)
 
+-- EVENTOS DEL SERVIDOR (para llamadas desde el cliente)
+-- Event para agregar kills desde el cliente
+RegisterNetEvent('zombie-leaderboard:server:addKill', function(amount)
+    local source = source
+    exports['leaderboard']:AddZombieKill(source, amount or 1)
+end)
+
+-- Event para establecer icono desde el cliente
+RegisterNetEvent('zombie-leaderboard:server:setIcon', function(icon)
+    local source = source
+    exports['leaderboard']:SetPlayerIcon(source, icon)
+end)
+
 -- Exportación para agregar kills
 exports('AddZombieKill', function(source, amount)
     local Player = QBCore.Functions.GetPlayer(source)
